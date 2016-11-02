@@ -8,7 +8,7 @@ function minimalBasketPrice(maxPrice, vendorsDelivery, vendorsProducts) {
     })
 
     //Map possible buying options to the minimum number of vendors needed to fulfill an order (implement a rectangle array)
-    var needs = vendors.map(val=>{
+    var needs = vendors.map((val,idx)=>{
       var notFound = []
       val.products.forEach((val, i)=>{
           if(val===-1) notFound.push(i)
@@ -16,19 +16,71 @@ function minimalBasketPrice(maxPrice, vendorsDelivery, vendorsProducts) {
 
       return {
         needed: notFound,
-        num: notFound.length
+        num: notFound.length,
+        index: idx
       }
     })
 
     var toCover = needs.filter(val=>{return val.num > 0})
+    var selfFulfill = needs.filter(val=> val.num ===0)
 
-    toCover.forEach((vendor, idx, arr)=>{
-      vendor.needed.forEach(prod=>{
+    //Map an array of objects with a value that contains vendors that will cover their product deficiency
+    var coverage = toCover.map((curVend, idx)=>{
 
+      curVend.viableVendors = curVend.needed.map((need,idx)=>{
+        //Filter out the vendors that can cover the hole[s] that the current vendor has
+        return {
+          vendors: vendors.filter(vendor=>{return vendor.products[need] >= 1}),
+          indexCovered: curVend.needed[idx]
+        }
       })
+
+      return curVend
     })
 
-    console.log(toCover);
+    selfFulfill = selfFulfill.filter((curVend, idx)=>{
+      return vendors.find(val => val.vendor === curVend.index).products.reduce((prev, cur)=>{return prev+cur}) <= maxPrice
+    })
+
+    //Map coverage array to objects that will have their prospective products' aggregates totals under the maxPrice
+    /*
+      useable: true||false,
+      vendorIndex: 0 <= indicies <= vendors.length,
+      paired index: []
+    */
+    var costEffectivePairs = coverage.filter((curVend, idx)=>{
+      console.log('Evaluating vendor '+curVend.index);
+      var canUse = false
+      var curcost = vendors.find(val => val.vendor === curVend.index).products
+      .reduce((prev, cur)=>{
+        if(cur === -1) cur = 0
+        return prev+cur
+      },0)
+      var reduceVend = {}
+
+      //Filter out vendors that when combined with the current vendor, cannot meet the cost threshold(<=maxPrice)
+      var returnedVendors = curVend.viableVendors.filter(val=>{
+
+        var mappedValues = val.vendors.map(vendor=>{
+          return{
+            cost: vendor.products[val.indexCovered],
+            idx: vendor.vendor
+          }
+        }).filter(vendor=>{return vendor.cost + curcost <= maxPrice})
+
+        console.log(mappedValues);
+      })
+
+
+      return {
+        useable: canUse,
+        vendorIndex: curVend.index,
+        pairs: returnedVendors
+      }
+    })
+
+
+    //console.log(coverage[2].viableVendors[1].vendors);
 
     //Map buying options with prices and delivery times
 
