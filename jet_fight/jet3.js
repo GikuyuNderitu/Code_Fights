@@ -48,7 +48,7 @@ function minimalBasketPrice(maxPrice, vendorsDelivery, vendorsProducts) {
       vendorIndex: 0 <= indicies <= vendors.length,
       paired index: []
     */
-    var costEffectivePairs = coverage.filter((curVend, idx)=>{
+    var costEffectivePairs = coverage.map((curVend, idx)=>{
       console.log('Evaluating vendor '+curVend.index);
       var canUse = false
       var curcost = vendors.find(val => val.vendor === curVend.index).products
@@ -57,9 +57,10 @@ function minimalBasketPrice(maxPrice, vendorsDelivery, vendorsProducts) {
         return prev+cur
       },0)
       var reduceVend = {}
+      console.log(curcost);
 
       //Filter out vendors that when combined with the current vendor, cannot meet the cost threshold(<=maxPrice)
-      var returnedVendors = curVend.viableVendors.filter(val=>{
+      var returnedVendors = curVend.viableVendors.map(val=>{
 
         var mappedValues = val.vendors.map(vendor=>{
           return{
@@ -69,7 +70,11 @@ function minimalBasketPrice(maxPrice, vendorsDelivery, vendorsProducts) {
         }).filter(vendor=>{return vendor.cost + curcost <= maxPrice})
 
         console.log(mappedValues);
+
+        return mappedValues
       })
+
+      console.log(returnedVendors);
 
 
       return {
@@ -79,7 +84,7 @@ function minimalBasketPrice(maxPrice, vendorsDelivery, vendorsProducts) {
       }
     })
 
-
+    //console.log(costEffectivePairs);
     //console.log(coverage[2].viableVendors[1].vendors);
 
     //Map buying options with prices and delivery times
