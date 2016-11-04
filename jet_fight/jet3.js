@@ -50,6 +50,7 @@ function minimalBasketPrice(maxPrice, vendorsDelivery, vendorsProducts) {
     */
     var costEffectivePairs = coverage.map((curVend, idx)=>{
       console.log('Evaluating vendor '+curVend.index);
+      console.log('Length is '+ coverage.length);
       var canUse = false
       var curcost = vendors.find(val => val.vendor === curVend.index).products
       .reduce((prev, cur)=>{
@@ -60,7 +61,7 @@ function minimalBasketPrice(maxPrice, vendorsDelivery, vendorsProducts) {
       console.log(curcost);
 
       //Filter out vendors that when combined with the current vendor, cannot meet the cost threshold(<=maxPrice)
-      var returnedVendors = curVend.viableVendors.map(val=>{
+      var returnedVendors = curVend.viableVendors.map((val,idx)=>{
 
         var mappedValues = val.vendors.map(vendor=>{
           return{
@@ -73,8 +74,27 @@ function minimalBasketPrice(maxPrice, vendorsDelivery, vendorsProducts) {
 
         return mappedValues
       })
+      /*filter out possiblities whern the returned vendors has a length>1
+        if returnedVendors.length > 1
+          //iterate over first dimension and return  total a match with the indexes that pass the filter
+          var matches = returnedVendors.map(val,idx=>{
+          if(returnedVendors.indexOf(val)!==idx)
+            //iterate over second dimension and return result
+            var match =val.filter(vendor=>{
+            return vendor.cost
+          })
+          if(match.length>0)
 
-      console.log(returnedVendors);
+        })
+      */
+      returnedVendors = returnedVendors.map((val,idx)=>{
+        var reducer = curcost
+        console.log(returnedVendors.length);
+
+      })
+
+
+      //console.log(returnedVendors);
 
 
       return {
